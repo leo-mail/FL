@@ -1,5 +1,9 @@
 <?PHP
 namespace FireLion\Data\Structures\Arr;
+/*
+	Internal function to set-up arguments correctly;
+	Converts {{$args, $keys},{$args}} to {$args, $EndIndex, $keyLevel, $StartIndex}
+*/
 function SetUpArgs($args, &$keys, &$EndIndex, &$keyLevel, &$StartIndex)
 {
 	$countArgs = count($args);
@@ -55,7 +59,7 @@ function SubLevelExecute(array &$array, $Action, ...$args)
 										-> walking through written path
 									 $keypath
 										-> stepping around fixed key array
-		And set it to $DATA
+		And execute action on it
 */
 {
 	$InPut =& $array;
@@ -68,6 +72,7 @@ function SubLevelExecute(array &$array, $Action, ...$args)
 	}
 	$Action($InPut);
 }
+
 function SubLevelSubtract(array &$array, $a, ...$args)
 {
 	SubLevelExecute($array, function(&$p)use($a){$p -= $a;}, ...$args);
@@ -183,7 +188,7 @@ function SubLevelBitwiseNot(array &$array, $a, ...$args)
 	SubLevelExecute($array, function(&$p)use($a){$p = $p|~$a;}, ...$args);
 }
 
-function SubLevelBitwiseAssignNot(array &$array, ...$args)
+function SubLevelBitwiseAssignNot(array &$array, $a, ...$args)
 {
 	SubLevelExecute($array, function(&$p)use($a){$p = ~$p;}, ...$args);
 }
@@ -217,27 +222,15 @@ function SubLevelExists(array &$array, ...$args)
 
 function SubLevelIs(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-	{
-		if(!isSet($InPut[$keys[$CurrentIndex]])) return false;
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	}
-	return is_a($InPut, $a);
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = is_a($p,$a);}, ...$args);
+	return $result;
 }
 function SubLevelGetType(array &$array, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-	{
-		if(!isSet($InPut[$keys[$CurrentIndex]])) return false;
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	}
-	return gettype($InPut);
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use(&$result){$result = gettype($p);}, ...$args);
+	return $result;
 }
 function SubLevelGet(array &$array, ...$args)
 {
@@ -254,112 +247,72 @@ function SubLevelGet(array &$array, ...$args)
 
 function SubLevelEquals(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut == $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p == $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelNotEquals(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut != $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p != $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelStrongEquals(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut === $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p === $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelStrongNotEquals(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut !== $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p !== $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelIsLesser(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut < $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p < $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelIsFewer(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut > $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p > $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelIsLesserOrEquals(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut <= $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p <= $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelIsFewerOrEquals(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut >= $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p >= $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelIsLesserOrFewer(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut <> $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p <> $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelCompare(array &$array, $a, ...$args)
 {
-	$InPut = $array;
-	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
-	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
-	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
-		$InPut =& $InPut[$keys[$CurrentIndex]];
-	
-	return $InPut <=> $a;
+	$result = NULL;
+		SubLevelExecute($array, function(&$p)use($a,$result){$result = ($p <=> $a);}, ...$args);
+	return $result;
 }
 
 function SubLevelIsSet(array &$array, ...$args)
