@@ -456,6 +456,7 @@ function ElementExecute(array &$array, $f = null)
 {
 	$InPut =& $array;
 	$levels = [];
+	$levelpos = [];
 	$pt	   =& $array;
 	$LevelDown = function(&$relative, $level) use(&$levels,&$pt)
 	{
@@ -482,6 +483,8 @@ function ElementExecute(array &$array, $f = null)
 	
 	Iteration:
 	$levelstring = implode("@#@", $levels);
+	if(!isSet($levelpos[$levelstring]))
+		$levelpos[$levelstring] = 0;
 	$i =& $levelpos[$levelstring];
 	$count = count($pt);
 	
