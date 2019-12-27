@@ -2,7 +2,7 @@
 namespace FireLion\Data\Structures\Arr;
 /*
 	Internal function to set-up arguments correctly;
-	Converts {{$args, $keys},{$args}} to {$args, $EndIndex, $keyLevel, $StartIndex}
+	Converts {{$args, $keys},{$args}} to {$array, $keys, $EndIndex, $keyLevel, $StartIndex}
 */
 function SetUpArgs($args, &$keys, &$EndIndex, &$keyLevel, &$StartIndex)
 {
