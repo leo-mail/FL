@@ -399,3 +399,29 @@ function SubLevelUnSet(array &$array, ...$args)
 	}
 	return false;
 }
+
+
+function Difference(array ...$arrays)
+{
+	foreach( $arrays as &$k=>&$v )
+	{
+		if($k==0) continue;
+		foreach($v as &$key=>&$value)
+		{
+			if(!isset($arrays[0][$key]))
+				yield $value;
+			if($arrays[0][$key]!==$value)
+				yield $value;
+		}
+	}
+}
+
+function RecursiveDifference(array ...$arrays)
+{
+	$c = count($arrays)-1;
+	for($i=0;$i<$c;$i++)
+	{
+		$arrays[$i] = Difference($arrays[$i], $arrays[$i+1]);
+	}
+	return $arrays[$c-1];
+}
