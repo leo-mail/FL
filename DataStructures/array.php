@@ -234,7 +234,7 @@ function SubLevelGetType(array &$array, ...$args)
 	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
 	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
 	{
-		if(!isSet($InPut[$keys[$CurrentIndex]]) || !is_array($InPut[$keys[$CurrentIndex]])) return false;
+		if(!isSet($InPut[$keys[$CurrentIndex]])) return false;
 		$InPut =& $InPut[$keys[$CurrentIndex]];
 	}
 	return gettype($InPut);
@@ -246,7 +246,7 @@ function SubLevelGet(array &$array, ...$args)
 	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
 	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
 	{
-		if(!isSet($InPut[$keys[$CurrentIndex]]) || !is_array($InPut[$keys[$CurrentIndex]])) return NULL;
+		if(!isSet($InPut[$keys[$CurrentIndex]])) return NULL;
 		$InPut = $InPut[$keys[$CurrentIndex]];
 	}
 	return $InPut;
@@ -403,14 +403,14 @@ function SubLevelUnSet(array &$array, ...$args)
 
 function Difference(array ...$arrays)
 {
-	foreach( $arrays as &$k=>&$v )
+	foreach( $arrays as $k=>&$v )
 	{
-		if($k==0) continue;
-		foreach($v as &$key=>&$value)
+		if($k==1) return;
+		foreach($v as $key=>&$value)
 		{
-			if(!isset($arrays[0][$key]))
+			if(!isset($arrays[1][$key]))
 				yield $value;
-			if($arrays[0][$key]!==$value)
+			if($arrays[1][$key]!==$value)
 				yield $value;
 		}
 	}
@@ -424,4 +424,80 @@ function RecursiveDifference(array ...$arrays)
 		$arrays[$i] = Difference($arrays[$i], $arrays[$i+1]);
 	}
 	return $arrays[$c-1];
+}
+function SubLevelGetLink(array &$array, ...$args)
+{
+	$InPut =& $array; //In other case, the code below will assign value to the input ($array) variable...
+	$keys = $EndIndex = $keyLevel = $StartIndex = 0;
+	SetUpArgs($args, $keys, $EndIndex, $keyLevel, $StartIndex);	
+	for($CurrentIndex=$StartIndex;$CurrentIndex<=$EndIndex;$CurrentIndex++)
+	{
+		if(!isSet($InPut[$keys[$CurrentIndex]]) || !is_array($InPut[$keys[$CurrentIndex]])) return NULL;
+		$InPut =& $InPut[$keys[$CurrentIndex]];
+	}
+	return $InPut;
+}
+function Unique(array $array, $fmt=null)
+{
+	$cf = is_callable($fmt);
+	//--------------------------------
+	$keys = [];
+	foreach( $array as $key=>&$value)
+	{
+		$v = $cf? $fmt($value): $value;
+			if( !isSet($keys[$v]) )
+				unset($value);
+			else
+				$keys[$v] = null;
+	}
+	return $array;
+}
+function ElementExecute(array &$array, $f = null)
+{
+	$InPut =& $array;
+	$levels = [];
+	$pt	   =& $array;
+	$LevelDown = function(&$relative, $level) use(&$levels,&$pt)
+	{
+		$levels[] = $level;
+		$pt =& $relative[$level];
+	};
+	$LevelUp = function(&$absolute) use(&$levels)
+	{
+		array_pop($levels);
+		if(count($levels)>0)
+		{
+			$pt =& SubLevelGetLink($absolute, $levels);
+		} else $pt =& $InPut;
+	};
+	$GetLevel = function() use(&$levels)
+	{
+		return count($levels)-1;
+	};
+	
+	if(!is_callable($func))
+	{
+		return [];
+	}
+	
+	Iteration:
+	$levelstring = implode("@#@", $levels);
+	$i =& $levelpos[$levelstring];
+	$count = count($pt);
+	
+	for(;$i<$count;$i++)
+	{
+		if( is_array($pt[$i]) )
+		{
+			$LevelDown($pt, $i);
+			goto Iteration;
+		} else {
+			$pt[$i] = call_user_func($f, [$pt[$i],$levels]);
+		}
+	}
+	if($GetLevel()>=0)
+	{
+		$LevelUp($InPut);
+		goto Iteration;
+	}
 }
