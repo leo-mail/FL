@@ -231,8 +231,19 @@ function VarToValue(&$val)
 			$val = "resource#" . (string)$val;
 };
 
-function Is($data)
+function Is($data, $silent=true)
 {
+	static $keyerrs = ["Unexpected char \"%s1\"","Unresolved or empty key","Unclosed tag - \"%s1\""];
+	$uname = __NAMESPACE__ . "\\" . __FUNCTION__;
+	$err = function($type,$reason)use($silent,$uname,$keyerrs)
+	{
+		if($silent) return;
+		trigger_error( 
+			"$uname - Parsing error:".PHP_EOL.str_replace("%s",$reason,$keyerrs[$type]),
+			E_USER_ERROR
+			);
+	};
+	
 	$LastByte = strlen($data)-1;
 	$isKey = false;
 	$key = $brackets = false;
@@ -251,7 +262,7 @@ function Is($data)
 					{
 						$brackets = false;
 					} else {
-						if($isKey) $key .= $char;
+						if($isKey) $key .= $Char;
 					}
 				} else {
 					$brackets = $Char;
@@ -262,14 +273,16 @@ function Is($data)
 				if( $brackets )
 				{
 					if($isKey)
-						$key .= $char;
+						$key .= $Char;
 				} else {
 					if(!$isKey)
 					{
 						$isKey = true;
 						$keyExists++;
-					} else
+					} else {
+						$err(0,$Char);
 						return false;
+					}
 				}
 			}	break;
 			case ">":
@@ -282,6 +295,7 @@ function Is($data)
 						$keyExists--;
 						if( trim($key) == "")
 						{
+							$err(1,"");
 							return false;
 						}
 						if( $prev == "/" )
@@ -291,22 +305,35 @@ function Is($data)
 			}	break;
 			default:
 			{
-				if( $char !== " " && $char !== "\t" && $char !== "\r" && $char !== "\n" && trim($char)!=="" )
+				if( $Char !== " " && $Char !== "\t" && $Char !== "\r" && $Char !== "\n" && trim($Char)!=="" )
 				{
 					if( !$keyExists<0 && !$isKey  )
+					{
+						$err(0,$Char);
 						return false;
+					}
 					if( $isKey )
-						$key .= $char;
+						$key .= $Char;
 				}
 			}	break;
 		
 		}
 		if( $Byte == $LastByte )
 		{
-			return	($isKey||$brackets)===false;
+			if($isKey||$isKeyExit)
+			{
+				$err(2,"<");
+				return false;
+			}
+			if($brackets!==false)
+			{
+				$err(0,$brackets);
+				return false;
+			}
 		}
-		$prev = $char;
+		$prev = $Char;
 	}
+	return true;
 }
 
 function FromArray($data, $title="XML", $br="\t")
