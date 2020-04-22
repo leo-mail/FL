@@ -21,4 +21,4 @@ Current supported languages:
 * PHP (>= 5.6)
 
 Minimal requirements:
-  Copy any part of the project if you want to use it, and then specify a link to the official repo ( https://github.com/levzenin/FL ) or specify a link to an author ( https://github.com/levzenin ) or specify that your project uses a part of FireLion Framework, or just add an FireLion logo/emblem from the repository ( https://github.com/levzenin/FLL )
+  Copy any part of the project if you want to use it, and then specify a link to the official repo ( https://github.com/leo-mail/FL ) or specify a link to an author ( https://github.com/levzenin , https://github.com/leo-mail ) or specify that your project uses a part of FireLion Framework, or just add an FireLion logo/emblem from the repository ( https://github.com/leo-mail/FLL )
