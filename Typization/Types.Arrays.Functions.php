@@ -16,6 +16,18 @@ function array_sub(&$array, $value, $strict=false)
 	unset($array[ array_search($value,$array,$strict) ]);
 }
 
+function array_include(&$array, $value)
+{
+	if( array_search($value,$array,$strict)===false )
+		$array[] = $value;
+}
+
+function array_exclude(&$array, $value)
+{
+	while(array_search($value,$array,true)!==false)
+	unset($array[ array_search($value,$array,true) ]);
+}
+
 function Include(&$array, $value)
 {
 	if( array_search($value,$array,$strict)===false )

@@ -18,7 +18,14 @@
 |				AbstractArray->Array with Abstract Typization
 |
 */
+require_once "Defines.php";
 
+foreach( ["array.php", "json.php", "xml.php"] as $req=>$file )
+if( file_exists(__DIR__ . $req) )
+{
+	$$req = true;
+		require_once __DIR__ . "Data/Structures/" . $file;
+} else $$req = false;
 class oArray implements IArray
 {
 	protected $_____data;
@@ -172,6 +179,53 @@ class oArray implements IArray
 			--$this->_____position;
 		unset($this->_____data[$index]);
 	}
+	
+	//XML
+	if(${2})
+		{
+			public function ToXml()
+			{
+				return FireLion\Data\Structures\Xml\FromArray( $this->_____data );
+			}
+			public function FromXml($data)
+			{
+				$this-._____data = FireLion\Data\Structures\Xml\ToArray($data);
+			}
+			if( FL_ARRAY_SUBACCESS )
+			{
+			protected function get_Xml()
+			{
+				return $this->ToXml();
+			}
+			protected function set_Xml($data)
+			{
+				$this->FromXml($data);
+			}
+			}
+		}
+	//JSON
+	if(${1})
+		{
+			public function ToJson()
+			{
+				return FireLion\Data\Structures\Json\FromArray( $this->_____data );
+			}
+			public function FromJson($data)
+			{
+				$this-._____data = FireLion\Data\Structures\Json\ToArray($data);
+			}
+			if( FL_ARRAY_SUBACCESS )
+			{
+			protected function get_Json()
+			{
+				return $this->ToJson();
+			}
+			protected function set_Json($data)
+			{
+				$this->FromJson($data);
+			}
+			}
+		}
 }
 
 class StaticArray extends oArray
@@ -533,7 +587,7 @@ class BoolArray extends TypeLockedArray
 	protected $_____types = ['bool'];
 }
 
-class BooleanArray extends BoolArray {}
+class_alias("BoolArray", "BooleanArray", false);
 
 class CallableArray extends TypeLockedArray
 {

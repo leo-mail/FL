@@ -1,4 +1,12 @@
 <?php
+define("FL_ARRAY_SUBACCESS", false);
+
+
+
+
+/*------------------------------------------------*//*/
+	DO NOT MODIFY UNTIL YOU WANT TO BREAK SMTHING
+/*------------------------------------------------//*/
 	//Quantified by classes registration routines
 	define("OS_WINDOWS",0);
 	define("OS_LINUX",1);
